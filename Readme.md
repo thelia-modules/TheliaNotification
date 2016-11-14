@@ -1,4 +1,4 @@
-# Image Factory
+# Thelia Notification
 
 
 # WIP <3
