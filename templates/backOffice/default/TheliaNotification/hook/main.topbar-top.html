@@ -1,0 +1,36 @@
+<style>
+    #notification-area {
+        position: relative;
+        display: inline-block;
+        height: 1px;
+        width: 40px;
+    }
+    #notification-area .notification-link {
+        position: absolute;
+        text-decoration: none;
+        color: #ffffff;
+        font-size: 2em;
+        top: -20px;
+        left: 5px;
+    }
+    #notification-area .nb {
+        position: absolute;
+        background-color: red;
+        color: #ffffff;
+        padding: 2px;
+        margin: 0px;
+        font-size: 12px;
+        line-height: 12px;
+        border-radius: 6px;
+        top: -2px;
+        right: 0px;
+        text-align: center;
+    }
+</style>
+<div id="notification-area">
+    <a href="{url route_id="admin.home.view"}" class="notification-link">
+        <i class="glyphicon glyphicon-bell"></i>
+    </a>
+    {$nb = {get_nb_notification}}
+    <span class="nb {if !$nb}hidden{/if}">{$nb}</span>
+</div>

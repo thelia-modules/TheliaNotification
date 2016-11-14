@@ -1,0 +1,148 @@
+<style>
+  a.notification-link {
+    color: #646464;
+    font-weight: normal;
+    font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 13px;
+    text-decoration: none;
+  }
+
+  a.notification-link:hover .panel-body {
+    background-color: #fbfbfb;
+  }
+</style>
+<div class="general-block-decorator col-md-6" id="notifications-list">
+  <div class="title title-without-tabs clearfix">
+    {intl l="Notifications list" d="thelianotification.bo.default"}
+    <div class="col-sm-2 input-group pull-right">
+      <button class="btn btn-info js-read-all" data-url="{url router="thelianotification" route_id="thelia_notification_read_all"}">
+        {intl l="Mark as read all" d="thelianotification.bo.default"}
+      </button>
+    </div>
+  </div>
+  <br/>
+
+  {assign notification_page {$smarty.get.notification_page|default:1}}
+
+  {if {admin attr="id"}}
+  {loop type="notification" name="notification" admin_id={admin attr="id"} limit=5 page=$notification_page order="date-reverse"}
+    <div class="panel panel-default panel-{$notification->getType()}">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <span title="{$notification->getTitle()}">{$notification->getTitle()|truncate:50:'...'}</span>
+          {if !$notification->getVirtualColumn('read_date')}
+          <a href="#" class="pull-right js-mark-read" title="{intl l="Mark as read" d="thelianotification.bo.default"}" data-url="{url router="thelianotification" route_id="thelia_notification_mark_read" notificationId=$notification->getId()}">
+            <i class="glyphicon glyphicon-eye-open"></i>
+          </a>
+          {/if}
+          <span class="pull-right">
+            {format_date date=$notification->getCreatedAt()}&nbsp;&nbsp;&nbsp;
+          </span>
+        </h3>
+      </div>
+      {if $notification->getUrl()}
+        <a href="{$notification->getUrl()}" class="notification-link">
+      {/if}
+      <div class="panel-body">
+        {$message = nl2br($notification->getMessage())}
+        {if substr_count($message, '<br') > 7}
+          {$message = array_slice(explode('<br', $message), 0, 8)}
+          {$message = implode('<br', $message)}
+          {$message nofilter}
+          {else}
+          {$message nofilter}
+        {/if}
+      </div>
+      {if $notification->getUrl()}
+        </a>
+      {/if}
+      {if substr_count($notification->getMessage(), '<br') > 7}
+      <div class="panel-body view-all hidden">
+        {$message = nl2br($notification->getMessage())}
+        {$message nofilter}
+      </div>
+      <ul class="list-group text-right">
+        <li class="list-group-item">
+          <button class="btn btn-primary btn-sm js-see-more">
+            {intl l="See more" d="thelianotification.bo.default"}
+          </button>
+        </li>
+      </ul>
+      {/if}
+    </div>
+  {/loop}
+
+    {ifloop rel="notification"}
+    {include
+    file = "includes/pagination.html"
+
+    loop_ref       = "notification"
+    max_page_count = 5
+    page_param_name = "notification_page"
+    page_url       = {url route_id="admin.home.view" notification_page=$notification_page}
+    }
+    {/ifloop}
+
+    {elseloop rel="notification"}
+      <div class="alert alert-info">
+        {intl l="You have not notification." d="thelianotification.bo.default"}
+      </div>
+    {/elseloop}
+
+  {/if}
+
+</div>
+<script>
+  "use strict";
+  {literal}
+  (function(){
+    var i;
+    var notificationsList = document.getElementById('notifications-list');
+    var notificationArea = document.getElementById('notification-area');
+    var notificationAreaNb = notificationArea.querySelector('.nb');
+    var buttonsSeeMore = notificationsList.querySelectorAll('.js-see-more');
+    var buttonsReadAll = notificationsList.querySelector('.js-read-all');
+
+    for (i = 0; i < buttonsSeeMore.length; i++) {
+      buttonsSeeMore[i].addEventListener('click', function(){
+        this.parentNode.parentNode.classList.add('hidden');
+        this.parentNode.parentNode.parentNode.querySelector('.panel-body').classList.add('hidden');
+        this.parentNode.parentNode.parentNode.querySelector('.view-all').classList.remove('hidden');
+      });
+    }
+
+    var buttonsMarkRead = notificationsList.querySelectorAll('.js-mark-read');
+
+    for (i = 0; i < buttonsMarkRead.length; i++) {
+      buttonsMarkRead[i].addEventListener('click', function(evt){
+        evt.preventDefault();
+        this.classList.add('hidden');
+        var n = parseInt(notificationAreaNb.innerHTML);
+
+        if (n - 1 <= 0) {
+          notificationAreaNb.classList.add('hidden');
+        }
+
+        notificationAreaNb.innerHTML = n - 1;
+
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", this.dataset.url, true);
+        xmlhttp.send();
+      });
+    }
+
+    buttonsReadAll.addEventListener('click', function(){
+      notificationAreaNb.classList.add('hidden');
+      notificationAreaNb.innerHTML = 0;
+
+      for (i = 0; i < buttonsMarkRead.length; i++) {
+        buttonsMarkRead[i].classList.add('hidden');
+      }
+
+      var xmlhttp = new XMLHttpRequest();
+      xmlhttp.open("GET", this.dataset.url, true);
+      xmlhttp.send();
+    });
+  }());
+  {/literal}
+</script>

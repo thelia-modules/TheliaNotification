@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<config xmlns="http://thelia.net/schema/dic/config"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://thelia.net/schema/dic/config http://thelia.net/schema/dic/config/thelia-1.0.xsd">
+
+    <loops>
+        <loop name="notification" class="TheliaNotification\Loop\NotificationLoop" />
+    </loops>
+
+    <forms>
+        <!--
+        <form name="MyFormName" class="TheliaNotification\Form\MySuperForm" />
+        -->
+    </forms>
+
+    <commands>
+        <!--
+        <command class="TheliaNotification\Command\MySuperCommand" />
+        -->
+    </commands>
+
+    <services>
+        <service id="thelia.notification.service" class="TheliaNotification\Service\NotificationService">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="thelia.parser"/>
+            <argument type="service" id="mailer"/>
+        </service>
+
+        <service id="thelia.notification.smarty" class="TheliaNotification\Plugin\Smarty\NotificationSmarty">
+            <tag name="thelia.parser.register_plugin"/>
+            <argument type="service" id="request_stack"/>
+        </service>
+    </services>
+
+    <hooks>
+        <hook id="thelia.notification.hook.home.top">
+            <tag name="hook.event_listener" event="home.top" type="back" templates="render:TheliaNotification/hook/home.top.html" />
+        </hook>
+        <hook id="thelia.notification.hook.main.topbar.top">
+            <tag name="hook.event_listener" event="main.topbar-top" type="back" templates="render:TheliaNotification/hook/main.topbar-top.html" />
+        </hook>
+    </hooks>
+
+    <!--
+    <exports>
+
+    </exports>
+    -->
+
+    <!--
+    <imports>
+
+    </imports>
+    -->
+</config>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database defaultIdMethod="native" name="thelia"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="../../../../vendor/propel/propel/resources/xsd/database.xsd" >
+
+    <table name="notification" namespace="TheliaNotification\Model">
+        <column autoIncrement="true" name="id" primaryKey="true" required="true" type="INTEGER" />
+        <column name="code" size="255" type="VARCHAR" />
+        <column name="type" valueSet="default,success,warning,danger,info" required="true" type="ENUM" />
+        <column name="url" size="255" type="VARCHAR" />
+        <column name="title" size="255" type="VARCHAR" />
+        <column name="message" size="255" type="LONGVARCHAR" />
+        <column name="message_type" size="15" type="CHAR" />
+
+        <index name="idx_notification_code">
+            <index-column name="code" />
+        </index>
+
+        <behavior name="timestampable" />
+    </table>
+
+    <table name="notification_customer" namespace="TheliaNotification\Model">
+        <column name="notification_id" type="INTEGER" primaryKey="true" />
+        <column name="customer_id" type="INTEGER" primaryKey="true" />
+        <column name="read_date" type="TIMESTAMP" />
+        <column name="hide" type="BOOLEAN" />
+
+        <foreign-key foreignTable="notification" name="fk_notification_customer__notification" onDelete="CASCADE">
+            <reference foreign="id" local="notification_id" />
+        </foreign-key>
+
+        <foreign-key foreignTable="customer" name="fk_notification_customer__customer" onDelete="CASCADE">
+            <reference foreign="id" local="customer_id" />
+        </foreign-key>
+
+        <index name="idx_notification_customer_read_date">
+            <index-column name="read_date" />
+        </index>
+
+        <index name="idx_notification_customer_hide">
+            <index-column name="hide" />
+        </index>
+
+        <unique name="notification_customer_UNIQUE">
+            <unique-column name="notification_id" />
+            <unique-column name="customer_id" />
+        </unique>
+    </table>
+
+    <table name="notification_admin" namespace="TheliaNotification\Model">
+        <column name="notification_id" type="INTEGER" primaryKey="true" />
+        <column name="admin_id" type="INTEGER" primaryKey="true" />
+        <column name="read_date" type="TIMESTAMP" />
+        <column name="hide" type="BOOLEAN" />
+
+        <foreign-key foreignTable="notification" name="fk_notification_admin__notification" onDelete="CASCADE">
+            <reference foreign="id" local="notification_id" />
+        </foreign-key>
+
+        <foreign-key foreignTable="admin" name="fk_notification_admin__admin" onDelete="CASCADE">
+            <reference foreign="id" local="admin_id" />
+        </foreign-key>
+
+        <index name="idx_notification_admin_read_date">
+            <index-column name="read_date" />
+        </index>
+
+        <index name="idx_notification_admin_hide">
+            <index-column name="hide" />
+        </index>
+
+        <unique name="notification_admin_UNIQUE">
+            <unique-column name="notification_id" />
+            <unique-column name="admin_id" />
+        </unique>
+    </table>
+
+    <external-schema filename="local/config/schema.xml" referenceOnly="true" />
+</database>
