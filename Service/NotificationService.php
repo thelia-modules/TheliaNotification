@@ -83,15 +83,11 @@ class NotificationService
     protected function performNotificationEmail(NotificationEntity $notification)
     {
         if ($notification->isByEmail() || count($notification->getEmails())) {
-            foreach ($notification->getEmails() as $email => $name) {
-                $this->setEmail($notification, $email, $name);
-            }
-
             foreach ($notification->getCustomers() as $customer) {
                 $this->parser->assign('locale', $customer->getLangModel()->getLocale());
 
                 if (filter_var($customer->getEmail(), FILTER_VALIDATE_EMAIL)) {
-                    $this->setEmail(
+                    $this->sendEmail(
                         $notification,
                         $customer->getEmail(),
                         $customer->getFirstname() . $customer->getLastname()
@@ -103,12 +99,16 @@ class NotificationService
                 $this->parser->assign('locale', $admin->getLocale());
 
                 if (filter_var($admin->getEmail(), FILTER_VALIDATE_EMAIL)) {
-                    $this->setEmail(
+                    $this->sendEmail(
                         $notification,
                         $admin->getEmail(),
                         $admin->getFirstname() . $admin->getLastname()
                     );
                 }
+            }
+
+            foreach ($notification->getEmails() as $email => $name) {
+                $this->sendEmail($notification, $email, $name);
             }
         }
     }
@@ -119,7 +119,7 @@ class NotificationService
      * @param string $name
      * @return \Swift_Message
      */
-    protected function setEmail(NotificationEntity $notification, $email, $name)
+    protected function sendEmail(NotificationEntity $notification, $email, $name)
     {
         $instance = \Swift_Message::newInstance();
 

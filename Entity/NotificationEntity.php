@@ -129,12 +129,13 @@ class NotificationEntity
      */
     public function toEmails(array $emails)
     {
-        foreach ($emails as $email) {
+        foreach ($emails as $email => $name) {
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                throw new \InvalidArgumentException();
+                throw new \InvalidArgumentException('Invalid Email.');
             }
+
+            $this->emails[$email] = $name;
         }
-        $this->emails = $emails;
         return $this;
     }
 
