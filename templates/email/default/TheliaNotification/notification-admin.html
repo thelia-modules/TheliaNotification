@@ -1,0 +1,34 @@
+{*
+  @var $admin Thelia\Model\Admin
+  @var $notification TheliaNotification\Entity\NotificationEntity
+*}
+
+{extends file="email-layout.tpl"}
+
+{* Open in browser  *}
+{block name="browser"}{/block}
+
+{* No big image header *}
+{block name="image-header"}{/block}
+
+{* No pre-header *}
+{block name="pre-header"}{/block}
+
+{* Subject  *}
+{block name="email-subject"}{intl l="New notification" d="thelianotification.email.default"}{/block}
+
+{* Title  *}
+{block name="email-title"}{/block}
+
+{* Content  *}
+{block name="email-content"}
+  <h1>{$notification->getTitle()}</h1>
+  <p>
+  {$message = nl2br($notification->getMessage())}
+  {$message nofilter}
+  </p>
+  <br/>
+  {if $notification->getUrl()}
+    <a target="_blank" href="{$notification->getUrl()}">{$notification->getUrl()}</a>
+  {/if}
+{/block}

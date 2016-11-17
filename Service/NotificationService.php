@@ -90,7 +90,9 @@ class NotificationService
                     $this->sendEmail(
                         $notification,
                         $customer->getEmail(),
-                        $customer->getFirstname() . $customer->getLastname()
+                        $customer->getFirstname() . $customer->getLastname(),
+                        'customer',
+                        ['customer' => $customer, 'notification' => $notification]
                     );
                 }
             }
@@ -102,13 +104,21 @@ class NotificationService
                     $this->sendEmail(
                         $notification,
                         $admin->getEmail(),
-                        $admin->getFirstname() . $admin->getLastname()
+                        $admin->getFirstname() . $admin->getLastname(),
+                        'admin',
+                        ['admin' => $admin, 'notification' => $notification]
                     );
                 }
             }
 
             foreach ($notification->getEmails() as $email => $name) {
-                $this->sendEmail($notification, $email, $name);
+                $this->sendEmail(
+                    $notification,
+                    $email,
+                    $name,
+                    'email',
+                    ['notification' => $notification]
+                );
             }
         }
     }
@@ -117,9 +127,11 @@ class NotificationService
      * @param NotificationEntity $notification
      * @param string $email
      * @param string $name
+     * @param string $templateName
+     * @param array $data
      * @return \Swift_Message
      */
-    protected function sendEmail(NotificationEntity $notification, $email, $name)
+    protected function sendEmail(NotificationEntity $notification, $email, $name, $templateName, array $data = [])
     {
         $instance = \Swift_Message::newInstance();
 
@@ -134,13 +146,7 @@ class NotificationService
             true
         );
 
-        $data = [
-            'message' => $notification->getMessage(),
-            'title' => $notification->getTitle(),
-            'url' => $notification->getUrl(),
-        ];
-
-        $htmlMessage = $this->parser->render('TheliaNotification/notification.html', $data, true);
+        $htmlMessage = $this->parser->render('TheliaNotification/notification-' . $templateName . '.html', $data, true);
 
         $instance->setBody($htmlMessage, 'text/html');
 

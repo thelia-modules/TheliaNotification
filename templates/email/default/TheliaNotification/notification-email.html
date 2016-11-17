@@ -1,3 +1,7 @@
+{*
+  @var $notification TheliaNotification\Entity\NotificationEntity
+*}
+
 {extends file="email-layout.tpl"}
 
 {* Open in browser  *}
@@ -17,13 +21,13 @@
 
 {* Content  *}
 {block name="email-content"}
-  <h1>{$title}</h1>
+  <h1>{$notification->getTitle()}</h1>
   <p>
-  {$message = nl2br($message)}
-  {$message nofilter}
+    {$message = nl2br($notification->getMessage())}
+    {$message nofilter}
   </p>
   <br/>
-  {if $link}
-    <a target="_blank" href="{$link}">{$link}</a>
+  {if $notification->getUrl()}
+    <a target="_blank" href="{$notification->getUrl()}">{$notification->getUrl()}</a>
   {/if}
 {/block}
