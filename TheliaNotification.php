@@ -13,6 +13,7 @@
 namespace TheliaNotification;
 
 use Propel\Runtime\Connection\ConnectionInterface;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Symfony\Component\Finder\Finder;
 use Thelia\Install\Database;
 use Thelia\Module\BaseModule;
@@ -29,7 +30,7 @@ class TheliaNotification extends BaseModule
     /**
      * @inheritdoc
      */
-    public function install(ConnectionInterface $con = null)
+    public function install(ConnectionInterface $con = null): void
     {
         $database = new Database($con);
 
@@ -42,7 +43,7 @@ class TheliaNotification extends BaseModule
     /**
      * @inheritdoc
      */
-    public function update($currentVersion, $newVersion, ConnectionInterface $con = null)
+    public function update($currentVersion, $newVersion, ConnectionInterface $con = null): void
     {
         $finder = (new Finder())->files()->name('#.*?\.sql#')->sortByName()->in(self::UPDATE_PATH);
 
@@ -63,7 +64,7 @@ class TheliaNotification extends BaseModule
     /**
      * @inheritdoc
      */
-    public function destroy(ConnectionInterface $con = null, $deleteModuleData = false)
+    public function destroy(ConnectionInterface $con = null, $deleteModuleData = false): void
     {
         if ($deleteModuleData) {
             $database = new Database($con);
@@ -74,4 +75,13 @@ class TheliaNotification extends BaseModule
             );
         }
     }
+
+    public static function configureServices(ServicesConfigurator $servicesConfigurator): void
+    {
+        $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
+            ->exclude([THELIA_MODULE_DIR.ucfirst(self::getModuleCode()).'/I18n/*'])
+            ->autowire(true)
+            ->autoconfigure(true);
+    }
+
 }

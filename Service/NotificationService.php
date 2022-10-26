@@ -3,6 +3,7 @@
 namespace TheliaNotification\Service;
 
 use Thelia\Core\Template\ParserInterface;
+use Thelia\Core\Translation\Translator;
 use Thelia\Mailer\MailerFactory;
 use Thelia\Model\Admin;
 use Thelia\Model\ConfigQuery;
@@ -13,6 +14,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use TheliaNotification\Model\Notification;
 use TheliaNotification\Model\NotificationAdmin;
 use TheliaNotification\Model\NotificationCustomer;
+use TheliaNotification\TheliaNotification;
 
 /**
  * Class MailManagerService
@@ -29,6 +31,11 @@ class NotificationService
     /** @var MailerFactory */
     protected $mailer;
 
+    /**
+     * @param EventDispatcherInterface $eventDispatcher
+     * @param ParserInterface $parser
+     * @param MailerFactory $mailer
+     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         ParserInterface $parser,
@@ -41,7 +48,7 @@ class NotificationService
 
     /**
      * @param NotificationEntity $notification
-     * @throws \Exception
+     * @return void
      * @throws \Propel\Runtime\Exception\PropelException
      */
     public function sendNotification(NotificationEntity $notification)
@@ -79,6 +86,8 @@ class NotificationService
 
     /**
      * @param NotificationEntity $notification
+     * @return void
+     * @throws \Propel\Runtime\Exception\PropelException
      */
     protected function performNotificationEmail(NotificationEntity $notification)
     {
@@ -129,29 +138,36 @@ class NotificationService
      * @param string $name
      * @param string $templateName
      * @param array $data
-     * @return \Swift_Message
+     * @throws \SmartyException
      */
-    protected function sendEmail(NotificationEntity $notification, $email, $name, $templateName, array $data = [])
+    protected function sendEmail(NotificationEntity $notification, $email, $name, $templateName, array $data = []): void
     {
-        $instance = \Swift_Message::newInstance();
-
-        $instance->addFrom(ConfigQuery::getStoreEmail());
-
-        $instance->addTo($email, $name);
-
-        $instance->setSubject($notification->getTitle());
-
-        $this->parser->setTemplateDefinition(
+        $this->parser->pushTemplateDefinition(
             $this->parser->getTemplateHelper()->getActiveMailTemplate(),
             true
         );
 
-        $htmlMessage = $this->parser->render('TheliaNotification/notification-' . $templateName . '.html', $data, true);
+        $htmlMessage = $this->parser->render(
+            'TheliaNotification/notification-' . $templateName . '.html',
+            [
+                'message' => $notification->getMessage(),
+                'title' => $notification->getTitle(),
+                'url' => $notification->getUrl(),
+            ]
+        );
 
-        $instance->setBody($htmlMessage, 'text/html');
+        $emailMessage = $this->mailer->createSimpleEmailMessage(
+            [ConfigQuery::getStoreEmail() => ConfigQuery::getStoreName()],
+            [ $email=> $name ],
+            $notification->getTitle(),
+            $htmlMessage,
+            Translator::getInstance()->trans("Please view this message in HTML format", [], TheliaNotification::DOMAIN_NAME)
+        );
 
-        $this->mailer->send($instance);
-    }
+        $this->mailer->send($emailMessage);
+
+        $this->parser->popTemplateDefinition();
+     }
 
     /**
      * @param NotificationEntity $notification

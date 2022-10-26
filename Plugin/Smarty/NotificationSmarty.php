@@ -42,7 +42,7 @@ class NotificationSmarty extends AbstractSmartyPlugin
      * @param \Smarty_Internal_Template $smarty
      * @return null
      */
-    public function getNotification(array $params, \Smarty_Internal_Template &$smarty)
+    public function getNotification(array $params, \Smarty_Internal_Template $smarty)
     {
         if ($this->getSession() !== null) {
             $query = $this->buildNotificationQuery($params);
@@ -79,7 +79,7 @@ class NotificationSmarty extends AbstractSmartyPlugin
      * @param \Smarty_Internal_Template $smarty
      * @return int
      */
-    public function getNbNotification(array $params, \Smarty_Internal_Template &$smarty)
+    public function getNbNotification(array $params, \Smarty_Internal_Template $smarty)
     {
         if ($this->getSession() !== null) {
             $query = $this->buildNotificationQuery($params);

@@ -15,7 +15,7 @@ class NotificationController extends BaseFrontController
     public function markReadAction(Request $request, $notificationId)
     {
         /** @var Admin $admin */
-        if (null !== $admin = $this->getRequest()->getSession()->getAdminUser()) {
+        if (null !== $admin = $request->getSession()->getAdminUser()) {
             if (null !== $notificationId = NotificationAdminQuery::create()
                 ->filterByAdminId($admin->getId())
                 ->filterByNotificationId($notificationId)
@@ -25,7 +25,7 @@ class NotificationController extends BaseFrontController
         }
 
         /** @var Customer $customer */
-        if (null !== $customer = $this->getRequest()->getSession()->getAdminUser()) {
+        if (null !== $customer = $request->getSession()->getAdminUser()) {
             if (null !== $notificationId = NotificationCustomerQuery::create()
                     ->filterByCustomerId($customer->getId())
                     ->filterByNotificationId($notificationId)
@@ -40,7 +40,7 @@ class NotificationController extends BaseFrontController
     public function readAllAction(Request $request)
     {
         /** @var Admin $admin */
-        if (null !== $admin = $this->getRequest()->getSession()->getAdminUser()) {
+        if (null !== $admin = $request->getSession()->getAdminUser()) {
             if (null !== $notifications = NotificationAdminQuery::create()
                     ->filterByAdminId($admin->getId())
                     ->filterByReadDate(null)
@@ -52,7 +52,7 @@ class NotificationController extends BaseFrontController
         }
 
         /** @var Customer $customer */
-        if (null !== $customer = $this->getRequest()->getSession()->getAdminUser()) {
+        if (null !== $customer = $request->getSession()->getAdminUser()) {
             if (null !== $notifications = NotificationCustomerQuery::create()
                     ->filterByCustomerId($customer->getId())
                     ->filterByReadDate(null)
